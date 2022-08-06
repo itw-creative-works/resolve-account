@@ -1,21 +1,21 @@
 <p align="center">
-  <a href="https://cdn.itwcreativeworks.com/assets/resolve-account/images/logo/resolve-account-brandmark-black-x.svg">
-    <img src="https://cdn.itwcreativeworks.com/assets/resolve-account/images/logo/resolve-account-brandmark-black-x.svg" width="100px">
+  <a href="https://cdn.itwcreativeworks.com/assets/itw-creative-works/images/logo/itw-creative-works-brandmark-black-x.svg">
+    <img src="https://cdn.itwcreativeworks.com/assets/itw-creative-works/images/logo/itw-creative-works-brandmark-black-x.svg" width="100px">
   </a>
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/github/package-json/v/resolve-account/resolve-account.svg">
+  <img src="https://img.shields.io/github/package-json/v/itw-creative-works/resolve-account.svg">
   <br>
   <img src="https://img.shields.io/librariesio/release/npm/resolve-account.svg">
   <img src="https://img.shields.io/bundlephobia/min/resolve-account.svg">
-  <img src="https://img.shields.io/codeclimate/maintainability-percentage/resolve-account/resolve-account.svg">
+  <img src="https://img.shields.io/codeclimate/maintainability-percentage/itw-creative-works/resolve-account.svg">
   <img src="https://img.shields.io/npm/dm/resolve-account.svg">
   <img src="https://img.shields.io/node/v/resolve-account.svg">
   <img src="https://img.shields.io/website/https/itwcreativeworks.com.svg">
-  <img src="https://img.shields.io/github/license/resolve-account/resolve-account.svg">
-  <img src="https://img.shields.io/github/contributors/resolve-account/resolve-account.svg">
-  <img src="https://img.shields.io/github/last-commit/resolve-account/resolve-account.svg">
+  <img src="https://img.shields.io/github/license/itw-creative-works/resolve-account.svg">
+  <img src="https://img.shields.io/github/contributors/itw-creative-works/resolve-account.svg">
+  <img src="https://img.shields.io/github/last-commit/itw-creative-works/resolve-account.svg">
   <br>
   <br>
   <a href="https://itwcreativeworks.com">Site</a> | <a href="https://www.npmjs.com/package/resolve-account">NPM Module</a> | <a href="https://github.com/resolve-account/resolve-account">GitHub Repo</a>

@@ -1,6 +1,6 @@
 {
   "name": "resolve-account",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Standardize account JSON structure for projects built under ITW Creative Works",
   "main": "./dist/index.js",
   "scripts": {

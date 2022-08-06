@@ -1,0 +1,34 @@
+{
+  "name": "resolve-account",
+  "version": "0.0.1",
+  "description": "Standardize account JSON structure for projects built under ITW Creative Works",
+  "main": "./dist/index.js",
+  "scripts": {
+    "test": "npm run prepare && ./node_modules/mocha/bin/mocha test/ --recursive --timeout=10000",
+    "prepare": "node -e 'require(`prepare-package`)'"
+  },
+  "engines": {
+    "node": ">=6.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/resolve-account/resolve-account"
+  },
+  "keywords": [
+    "resolve-account",
+    "standardize account",
+    "text expander",
+    "nodejs",
+    "front end"
+  ],
+  "author": "ITW Creative Works",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/resolve-account/resolve-account/issues"
+  },
+  "homepage": "https://itwcreativeworks.com",
+  "devDependencies": {
+    "mocha": "^8.4.0",
+    "prepare-package": "^0.0.12"
+  }
+}

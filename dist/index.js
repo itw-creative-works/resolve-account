@@ -17,7 +17,7 @@
   var environment = (Object.prototype.toString.call(typeof process !== 'undefined' ? process : 0) === '[object process]') ? 'node' : 'browser';
 
   var SOURCE = 'library';
-  var VERSION = '0.0.3';
+  var VERSION = '0.0.4';
 
   function ResolveAccount(options) {
     var self = this
@@ -117,8 +117,8 @@
 
     // Resolve oAuth2
     account.oauth2 = account.oauth2 || {};
-    account.oauth2.discord = account.oauth2.discord || {};
-    account.oauth2.discord.user = account.oauth2.discord.user || {};
+    // account.oauth2.discord = account.oauth2.discord || {};
+    // account.oauth2.discord.user = account.oauth2.discord.user || {};
 
     // Resolve roles
     account.roles = account.roles || {};

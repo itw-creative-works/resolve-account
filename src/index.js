@@ -117,8 +117,8 @@
 
     // Resolve oAuth2
     account.oauth2 = account.oauth2 || {};
-    account.oauth2.discord = account.oauth2.discord || {};
-    account.oauth2.discord.user = account.oauth2.discord.user || {};
+    // account.oauth2.discord = account.oauth2.discord || {};
+    // account.oauth2.discord.user = account.oauth2.discord.user || {};
 
     // Resolve roles
     account.roles = account.roles || {};

@@ -17,7 +17,7 @@
   var environment = (Object.prototype.toString.call(typeof process !== 'undefined' ? process : 0) === '[object process]') ? 'node' : 'browser';
 
   var SOURCE = 'library';
-  var VERSION = '0.0.4';
+  var VERSION = '0.0.5';
 
   function ResolveAccount(options) {
     var self = this
@@ -122,10 +122,12 @@
 
     // Resolve roles
     account.roles = account.roles || {};
-    account.roles.betaTester = account.plan.id === defaultPlanId ? false : account.roles.betaTester === true || account.roles.betaTester === 'true';
+    // account.roles.betaTester = account.plan.id === defaultPlanId ? false : account.roles.betaTester === true || account.roles.betaTester === 'true';
+    account.roles.betaTester = account.roles.betaTester === true || account.roles.betaTester === 'true';
     account.roles.developer = account.roles.developer === true || account.roles.developer === 'true';
     account.roles.admin = account.roles.admin === true || account.roles.admin === 'true';
     account.roles.vip = account.roles.vip === true || account.roles.vip === 'true';
+    account.roles.og = account.roles.og === true || account.roles.og === 'true';
     account.roles.promoExempt = account.roles.promoExempt === true || account.roles.promoExempt === 'true';
 
     // Resolve affiliate

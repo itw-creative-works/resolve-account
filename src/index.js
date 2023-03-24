@@ -28,19 +28,17 @@
     self.utilities = options.utilities;
     self.dom = options.dom;
 
+    self.properties = {};
+
     return self;
   };
 
   ResolveAccount.prototype.resolve = function (firebaseUser, account, options) {
     var self = this;
-    
+
     firebaseUser = firebaseUser || {};
     account = account || {};
     options = options || {};
-
-    var Manager = self.Manager;
-    var utilities = self.utilities;
-    var dom = self.dom;
 
     var defaultPlanId = options.defaultPlanId || 'basic';
 
@@ -91,17 +89,17 @@
     // In a try/catch because this lib is used in node sometimes
     try {
       currentURL = new URL(window.location.href);
-      isDevelopment = utilities.get(Manager, 'properties.meta.environment', '') === 'development';
+      isDevelopment = self.utilities.get(self.Manager, 'properties.meta.environment', '') === 'development';
 
-      if (utilities.get(isDevelopment)) {
+      if (self.utilities.get(isDevelopment)) {
         currentURL.searchParams
         .forEach(function(value, key) {
-          var accountValue = utilities.get(account, key, undefined)
+          var accountValue = self.utilities.get(account, key, undefined)
           if (typeof accountValue !== undefined) {
             if (value === 'true') { value = true }
             if (value === 'false') { value = false }
 
-            utilities.set(account, key, value)
+            self.utilities.set(account, key, value)
           }
         });
       }
@@ -186,30 +184,40 @@
     try {
       var cancelURL = isDevelopment ? 'http://localhost:4001/cancel/' : 'https://itwcreativeworks.com/portal/account/manage/';
 
-      var billingSubscribeBtn = dom.select('.auth-billing-subscribe-btn');
-      var billingUpdateBtn = dom.select('.auth-billing-update-btn');
-      var billingPlanId = dom.select('.auth-billing-plan-id-element');
-      var billingFrequencyEl = dom.select('.auth-billing-frequency-element');
-      var billingStartDateEl = dom.select('.auth-billing-start-date-element');
-      var billingExpirationDateEl = dom.select('.auth-billing-expiration-date-element');
+      var billingSubscribeBtn = self.dom.select('.auth-billing-subscribe-btn');
+      var billingUpdateBtn = self.dom.select('.auth-billing-update-btn');
+      var billingPlanId = self.dom.select('.auth-billing-plan-id-element');
+      var billingFrequencyEl = self.dom.select('.auth-billing-frequency-element');
+      var billingStartDateEl = self.dom.select('.auth-billing-start-date-element');
+      var billingExpirationDateEl = self.dom.select('.auth-billing-expiration-date-element');
 
-      var $referralCount = dom.select('.auth-referral-count-element');
-      var $referralCode = dom.select('.auth-referral-code-element');
-      var $referralLink = dom.select('.auth-referral-link-element');
-      var $referralSocialLink = dom.select('a.auth-referral-social-link[data-provider]');
+      var $referralCount = self.dom.select('.auth-referral-count-element');
+      var $referralCode = self.dom.select('.auth-referral-code-element');
+      var $referralLink = self.dom.select('.auth-referral-link-element');
+      var $referralSocialLink = self.dom.select('a.auth-referral-social-link[data-provider]');
 
-      var authCreatedEl = dom.select('.auth-created-element');
-      var authPhoneInput = dom.select('.auth-phone-input');
+      var authCreatedEl = self.dom.select('.auth-created-element');
+      var authPhoneInput = self.dom.select('.auth-phone-input');
 
       var updateURL = new URL(cancelURL);
       var referralURL = new URL(window.location.origin || window.location.host);
+
+      function _setAuthItem(selector, value) {
+        self.dom.select(selector).each(function(e, i) {
+          if (e.tagName === 'INPUT') {
+            self.dom.select(e).setValue(value);
+          } else {
+            self.dom.select(e).setInnerHTML(value);
+          }
+        });
+      }
 
       referralURL.pathname = '/';
       referralURL.searchParams.set('aff', account.affiliate.code)
 
       authCreatedEl.setInnerHTML(
         new Date(
-          parseInt(utilities.get(firebaseUser, 'metadata.a', '0'))
+          parseInt(self.utilities.get(firebaseUser, 'metadata.a', '0'))
         )
         .toLocaleString(undefined, {
           weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
@@ -236,7 +244,7 @@
         ? '<i class="fas fa-exclamation-triangle mr-1"></i> Expires in ' + daysTillExpire + ' days '
         : '');
 
-      _setAuthItem('.auth-apikey-element', utilities.get(account, 'api.privateKey', 'n/a'));
+      _setAuthItem('.auth-apikey-element', self.utilities.get(account, 'api.privateKey', 'n/a'));
 
 
       $referralCount.setInnerHTML(account.affiliate.referrals.length);
@@ -244,7 +252,7 @@
       $referralCode.setInnerHTML(referralURL.toString()).setValue(referralURL.toString());
 
       var affiliateLinkURI = encodeURIComponent(referralURL.toString());
-      var affiliateLinkTextURI = encodeURIComponent('Sign up for ' + utilities.get(Manager, 'properties.global.brand.name', 'this') + ', a useful service:');
+      var affiliateLinkTextURI = encodeURIComponent('Sign up for ' + self.utilities.get(self.Manager, 'properties.global.brand.name', 'this') + ', a useful service:');
 
       $referralSocialLink
       .each(function ($el) {
@@ -276,7 +284,9 @@
       }
     }
 
-    return account;
+    self.properties = account;
+
+    return self.properties;
   }
 
 

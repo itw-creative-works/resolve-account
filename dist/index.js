@@ -17,7 +17,7 @@
   var environment = (Object.prototype.toString.call(typeof process !== 'undefined' ? process : 0) === '[object process]') ? 'node' : 'browser';
 
   var SOURCE = 'library';
-  var VERSION = '0.0.7';
+  var VERSION = '0.0.8';
 
   function ResolveAccount(options) {
     var self = this
@@ -245,7 +245,6 @@
         : '');
 
       _setAuthItem('.auth-apikey-element', self.utilities.get(account, 'api.privateKey', 'n/a'));
-
 
       $referralCount.setInnerHTML(account.affiliate.referrals.length);
       $referralCode.setInnerHTML(account.affiliate.code).setValue(account.affiliate.code);

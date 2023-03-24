@@ -246,7 +246,6 @@
 
       _setAuthItem('.auth-apikey-element', self.utilities.get(account, 'api.privateKey', 'n/a'));
 
-
       $referralCount.setInnerHTML(account.affiliate.referrals.length);
       $referralCode.setInnerHTML(account.affiliate.code).setValue(account.affiliate.code);
       $referralCode.setInnerHTML(referralURL.toString()).setValue(referralURL.toString());

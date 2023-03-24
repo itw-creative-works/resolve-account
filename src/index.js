@@ -33,6 +33,7 @@
 
   ResolveAccount.prototype.resolve = function (firebaseUser, account, options) {
     var self = this;
+    
     firebaseUser = firebaseUser || {};
     account = account || {};
     options = options || {};
@@ -55,9 +56,17 @@
     // Resolve plan
     account.plan = account.plan || {};
     account.plan.id = account.plan.id || defaultPlanId;
+   
     account.plan.expires = account.plan.expires || {};
     account.plan.expires.timestamp = new Date(account.plan.expires.timestamp || 0).toISOString();
     account.plan.expires.timestampUNIX = Math.round(new Date(account.plan.expires.timestamp || 0).getTime() / 1000);
+    
+    account.plan.trial = account.plan.trial || {};
+    account.plan.trial.activated = account.plan.trial.activated || false;
+    account.plan.trial.date = account.plan.trial.date || {};
+    account.plan.trial.date.timestamp = new Date(account.plan.trial.date.timestamp || 0).toISOString()
+    account.plan.trial.date.timestampUNIX = Math.round(new Date(account.plan.expires.timestampUNIX || 0).getTime() / 1000);
+
     account.plan.limits = account.plan.limits || {};
     // account.plan.devices = account.plan.devices || 1;
 
@@ -105,7 +114,7 @@
     var planExpireDate = new Date(account.plan.expires.timestamp);
     var now = new Date();
     var daysTillExpire = Math.floor((planExpireDate - now) / 86400000);
-    var difference = (planExpireDate.getTime() - now.getTime())/(24*3600*1000);
+    var difference = (planExpireDate.getTime() - now.getTime()) / (24 * 3600 * 1000);
     var startDate = new Date(account.plan.payment.startDate.timestamp);
     var planIsActive = difference > -1 && account.plan.id !== defaultPlanId;
 
@@ -154,6 +163,16 @@
     // Personal
     account.personal = account.personal || {};
 
+    account.personal.birthday = account.personal.birthday || {};
+    account.personal.birthday.timestamp = account.personal.birthday.timestamp || '1970-01-01T00:00:00.000Z';
+    account.personal.birthday.timestampUNIX = account.personal.birthday.timestampUNIX || 0;
+
+    account.personal.gender = account.personal.gender || '';
+
+    account.personal.location = account.personal.location || {};
+    account.personal.location.city = account.personal.location.city || '';
+    account.personal.location.country = account.personal.location.country || '';
+
     account.personal.name = account.personal.name || {};
     account.personal.name.first = account.personal.name.first || '';
     account.personal.name.last = account.personal.name.last || '';
@@ -162,20 +181,9 @@
     account.personal.telephone.countryCode = account.personal.telephone.countryCode || 0;
     account.personal.telephone.national = account.personal.telephone.national || 0;
 
-    account.personal.birthday = account.personal.birthday || {};
-    account.personal.birthday.timestamp = account.personal.birthday.timestamp || '1970-01-01T00:00:00.000Z';
-    account.personal.birthday.timestampUNIX = account.personal.birthday.timestampUNIX || 0;
-
-    account.personal.gender = account.personal.gender || '';
-
-    account.personal.location = account.personal.location || {};
-    account.personal.location.country = account.personal.location.country || '';
-
     // Set UI elements
     // In a try/catch because this lib is used in node sometimes
     try {
-      // var apiLinkURL = isDevelopment ? 'http://localhost:5000/discord-link' : 'https://api.{{ site.brand.name }}.com/discord-link';
-      // var apiUnlinkURL = isDevelopment ? 'http://localhost:5000/discord-unlink' : 'https://api.{{ site.brand.name }}.com/discord-unlink';
       var cancelURL = isDevelopment ? 'http://localhost:4001/cancel/' : 'https://itwcreativeworks.com/portal/account/manage/';
 
       var billingSubscribeBtn = dom.select('.auth-billing-subscribe-btn');
@@ -213,13 +221,9 @@
       billingUpdateBtn.setAttribute('hidden', true);
 
       if (planIsActive) {
-        updateURL.searchParams.set('appName', utilities.get(Manager, 'properties.global.brand.name', 'Unknown'));
-        updateURL.searchParams.set('supportUrl', currentURL.origin + '/support');
-        updateURL.searchParams.set('supportEmail', utilities.get(Manager, 'properties.contact.emailSupport', 'unknown@email.com'));
-        updateURL.searchParams.set('userEmail', firebaseUser.email);
-        updateURL.searchParams.set('userId', firebaseUser.uid);
         updateURL.searchParams.set('orderId', account.plan.payment.orderId);
         updateURL.searchParams.set('resourceId', account.plan.payment.resourceId);
+
         billingUpdateBtn.removeAttribute('hidden').setAttribute('href', updateURL.toString());
       } else {
         billingSubscribeBtn.removeAttribute('hidden');

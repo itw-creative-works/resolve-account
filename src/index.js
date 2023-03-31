@@ -61,9 +61,9 @@
     
     account.plan.trial = account.plan.trial || {};
     account.plan.trial.activated = account.plan.trial.activated || false;
-    account.plan.trial.date = account.plan.trial.date || {};
-    account.plan.trial.date.timestamp = new Date(account.plan.trial.date.timestamp || 0).toISOString()
-    account.plan.trial.date.timestampUNIX = Math.round(new Date(account.plan.expires.timestampUNIX || 0).getTime() / 1000);
+    account.plan.trial.expires = account.plan.trial.expires || {};
+    account.plan.trial.expires.timestamp = new Date(account.plan.trial.expires.timestamp || 0).toISOString()
+    account.plan.trial.expires.timestampUNIX = Math.round(new Date(account.plan.trial.expires.timestamp || 0).getTime() / 1000);
 
     account.plan.limits = account.plan.limits || {};
     // account.plan.devices = account.plan.devices || 1;

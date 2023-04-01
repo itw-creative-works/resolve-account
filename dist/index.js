@@ -17,7 +17,7 @@
   var environment = (Object.prototype.toString.call(typeof process !== 'undefined' ? process : 0) === '[object process]') ? 'node' : 'browser';
 
   var SOURCE = 'library';
-  var VERSION = '0.0.9';
+  var VERSION = '1.0.0';
 
   function ResolveAccount(options) {
     var self = this
@@ -152,6 +152,17 @@
     account.activity.created = account.activity.created || {};
     account.activity.created.timestamp = account.activity.created.timestamp || '1970-01-01T00:00:00.000Z';
     account.activity.created.timestampUNIX = account.activity.created.timestampUNIX || 0;
+
+    account.activity.geolocation = account.activity.geolocation || {};
+    account.activity.geolocation.ip = account.activity.geolocation.ip || 'unknown';
+    account.activity.geolocation.continent = account.activity.geolocation.continent || 'unknown';
+    account.activity.geolocation.country = account.activity.geolocation.country || 'unknown';
+    account.activity.geolocation.city = account.activity.geolocation.city || 'unknown';
+    account.activity.geolocation.latitude = account.activity.geolocation.latitude || 'unknown';
+    account.activity.geolocation.longitude = account.activity.geolocation.longitude || 'unknown';
+    account.activity.geolocation.userAgent = account.activity.geolocation.userAgent || 'unknown';
+    account.activity.geolocation.language = account.activity.geolocation.language || 'unknown';
+    account.activity.geolocation.platform = account.activity.geolocation.platform || 'unknown';    
 
     // Api
     account.api = account.api || {};

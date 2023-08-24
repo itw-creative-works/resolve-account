@@ -54,11 +54,13 @@
     // Resolve plan
     account.plan = account.plan || {};
     account.plan.id = account.plan.id || defaultPlanId;
-   
+
     account.plan.expires = account.plan.expires || {};
     account.plan.expires.timestamp = new Date(account.plan.expires.timestamp || 0).toISOString();
     account.plan.expires.timestampUNIX = Math.round(new Date(account.plan.expires.timestamp || 0).getTime() / 1000);
-    
+
+    account.plan.status = account.plan.status || 'cancelled';
+
     account.plan.trial = account.plan.trial || {};
     account.plan.trial.activated = account.plan.trial.activated || false;
     account.plan.trial.expires = account.plan.trial.expires || {};
@@ -162,7 +164,7 @@
     account.activity.geolocation.longitude = account.activity.geolocation.longitude || 'unknown';
     account.activity.geolocation.userAgent = account.activity.geolocation.userAgent || 'unknown';
     account.activity.geolocation.language = account.activity.geolocation.language || 'unknown';
-    account.activity.geolocation.platform = account.activity.geolocation.platform || 'unknown';    
+    account.activity.geolocation.platform = account.activity.geolocation.platform || 'unknown';
 
     // Api
     account.api = account.api || {};

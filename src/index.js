@@ -161,14 +161,14 @@
     account.activity.geolocation.country = account.activity.geolocation.country || 'unknown';
     account.activity.geolocation.region = account.activity.geolocation.region || 'unknown';
     account.activity.geolocation.city = account.activity.geolocation.city || 'unknown';
-    account.activity.geolocation.latitude = account.activity.geolocation.latitude || 'unknown';
-    account.activity.geolocation.longitude = account.activity.geolocation.longitude || 'unknown';
+    account.activity.geolocation.latitude = account.activity.geolocation.latitude || 0;
+    account.activity.geolocation.longitude = account.activity.geolocation.longitude || 0;
 
     account.activity.client = account.activity.client || {};
     account.activity.client.userAgent = account.activity.client.userAgent || 'unknown';
     account.activity.client.language = account.activity.client.language || 'unknown';
     account.activity.client.platform = account.activity.client.platform || 'unknown';
-    account.activity.client.mobile = account.activity.client.mobile || 'unknown';
+    account.activity.client.mobile = account.activity.client.mobile || null;
 
     // Api
     account.api = account.api || {};

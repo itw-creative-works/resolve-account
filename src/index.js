@@ -111,10 +111,12 @@
       }
     }
 
-    var planExpireDate = new Date(account.plan.expires.timestamp);
     var now = new Date();
+    var planExpireDate = new Date(account.plan.expires.timestamp);
     var daysTillExpire = Math.floor((planExpireDate - now) / 86400000);
     var difference = (planExpireDate.getTime() - now.getTime()) / (24 * 3600 * 1000);
+    var trialExpireDate = new Date(account.plan.trial.expires.timestamp);
+    var daysTillTrialExpire = Math.floor((trialExpireDate - now) / 86400000);
     var startDate = new Date(account.plan.payment.startDate.timestamp);
     var planIsActive = difference > -1 && account.plan.id !== defaultPlanId;
     var planIsSuspended = account.plan.status === 'suspended';
@@ -209,6 +211,7 @@
       var billingStartDateEl = self.dom.select('.auth-billing-start-date-element');
       var billingExpirationDateEl = self.dom.select('.auth-billing-expiration-date-element');
       var billingSuspendedMessageEl = self.dom.select('.auth-billing-suspended-message-element');
+      var billingTrialExpirationDateEl = self.dom.select('.auth-billing-trial-expiration-date-element');
 
       var $referralCount = self.dom.select('.auth-referral-count-element');
       var $referralCode = self.dom.select('.auth-referral-code-element');
@@ -242,19 +245,22 @@
       )
       authPhoneInput.setInnerHTML(firebaseUser.phoneNumber).setValue(firebaseUser.phoneNumber)
 
-      billingUpdateBtn.setAttribute('hidden', true).setAttribute('href', updateURL.toString());
-      billingSubscribeBtn.setAttribute('hidden', true);
-      billingSuspendedMessageEl.setAttribute('hidden');
-
       updateURL.searchParams.set('orderId', account.plan.payment.orderId);
       updateURL.searchParams.set('resourceId', account.plan.payment.resourceId);
 
+      billingUpdateBtn.setAttribute('hidden', true).setAttribute('href', updateURL.toString());
+      billingSubscribeBtn.setAttribute('hidden', true);
+      billingSuspendedMessageEl.setAttribute('hidden');
+      billingTrialExpirationDateEl.setAttribute('hidden');
+
+      // Update active UI
       if (planIsActive) {
         billingUpdateBtn.removeAttribute('hidden');
       } else {
         billingSubscribeBtn.removeAttribute('hidden');
       }
 
+      // Update suspended UI
       if (planIsSuspended) {
         billingUpdateBtn.removeAttribute('hidden');
         billingSubscribeBtn.setAttribute('hidden', true);
@@ -262,6 +268,14 @@
         billingSuspendedMessageEl.removeAttribute('hidden');
       }
 
+      // Update trial UI
+      if (account.plan.trial.activated) {
+        billingTrialExpirationDateEl
+        .removeAttribute('hidden')
+        .setInnerHTML('<i class="fas fa-gift mr-1"></i> Your free trial expires in ' + daysTillTrialExpire + ' days');
+      }
+
+      // Update billing UI
       billingPlanId.setInnerHTML(uppercase(account.plan.id));
       billingFrequencyEl.setInnerHTML(account.plan.id !== defaultPlanId ? ' (billed ' + uppercase(account.plan.payment.frequency) + ')' : '');
       billingStartDateEl.setInnerHTML(account.plan.id !== defaultPlanId ? ' - Purchased ' + getMonth(startDate) + ' ' + startDate.getDate() + ', ' + startDate.getFullYear() : '');

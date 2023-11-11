@@ -93,11 +93,11 @@
       currentURL = new URL(window.location.href);
       isDevelopment = self.utilities.get(self.Manager, 'properties.meta.environment', '') === 'development';
 
-      if (self.utilities.get(isDevelopment)) {
+      if (isDevelopment) {
         currentURL.searchParams
         .forEach(function(value, key) {
           var accountValue = self.utilities.get(account, key, undefined)
-          if (typeof accountValue !== undefined) {
+          if (typeof accountValue !== 'undefined') {
             if (value === 'true') { value = true }
             if (value === 'false') { value = false }
 
@@ -117,6 +117,7 @@
     var difference = (planExpireDate.getTime() - now.getTime()) / (24 * 3600 * 1000);
     var startDate = new Date(account.plan.payment.startDate.timestamp);
     var planIsActive = difference > -1 && account.plan.id !== defaultPlanId;
+    var planIsSuspended = account.plan.status === 'suspended';
 
     if (planIsActive) {
       account.plan.id = account.plan.id;
@@ -199,7 +200,7 @@
     // Set UI elements
     // In a try/catch because this lib is used in node sometimes
     try {
-      var cancelURL = isDevelopment ? 'http://localhost:4001/cancel/' : 'https://itwcreativeworks.com/portal/account/manage/';
+      var cancelURL = isDevelopment ? 'http://localhost:4001/cancel' : 'https://itwcreativeworks.com/portal/account/manage';
 
       var billingSubscribeBtn = self.dom.select('.auth-billing-subscribe-btn');
       var billingUpdateBtn = self.dom.select('.auth-billing-update-btn');
@@ -207,6 +208,7 @@
       var billingFrequencyEl = self.dom.select('.auth-billing-frequency-element');
       var billingStartDateEl = self.dom.select('.auth-billing-start-date-element');
       var billingExpirationDateEl = self.dom.select('.auth-billing-expiration-date-element');
+      var billingSuspendedMessageEl = self.dom.select('.auth-billing-suspended-message-element');
 
       var $referralCount = self.dom.select('.auth-referral-count-element');
       var $referralCode = self.dom.select('.auth-referral-code-element');
@@ -233,25 +235,31 @@
       referralURL.searchParams.set('aff', account.affiliate.code)
 
       authCreatedEl.setInnerHTML(
-        new Date(
-          parseInt(self.utilities.get(firebaseUser, 'metadata.a', '0'))
-        )
+        new Date(+self.utilities.get(firebaseUser, 'metadata.createdAt', '0'))
         .toLocaleString(undefined, {
           weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
         })
       )
       authPhoneInput.setInnerHTML(firebaseUser.phoneNumber).setValue(firebaseUser.phoneNumber)
 
+      billingUpdateBtn.setAttribute('hidden', true).setAttribute('href', updateURL.toString());
       billingSubscribeBtn.setAttribute('hidden', true);
-      billingUpdateBtn.setAttribute('hidden', true);
+      billingSuspendedMessageEl.setAttribute('hidden');
+
+      updateURL.searchParams.set('orderId', account.plan.payment.orderId);
+      updateURL.searchParams.set('resourceId', account.plan.payment.resourceId);
 
       if (planIsActive) {
-        updateURL.searchParams.set('orderId', account.plan.payment.orderId);
-        updateURL.searchParams.set('resourceId', account.plan.payment.resourceId);
-
-        billingUpdateBtn.removeAttribute('hidden').setAttribute('href', updateURL.toString());
+        billingUpdateBtn.removeAttribute('hidden');
       } else {
         billingSubscribeBtn.removeAttribute('hidden');
+      }
+
+      if (planIsSuspended) {
+        billingUpdateBtn.removeAttribute('hidden');
+        billingSubscribeBtn.setAttribute('hidden', true);
+
+        billingSuspendedMessageEl.removeAttribute('hidden');
       }
 
       billingPlanId.setInnerHTML(uppercase(account.plan.id));

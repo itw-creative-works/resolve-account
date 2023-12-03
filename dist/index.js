@@ -17,7 +17,7 @@
   var environment = (Object.prototype.toString.call(typeof process !== 'undefined' ? process : 0) === '[object process]') ? 'node' : 'browser';
 
   var SOURCE = 'library';
-  var VERSION = '1.0.6';
+  var VERSION = '1.0.7';
 
   function ResolveAccount(options) {
     var self = this
@@ -271,7 +271,10 @@
       }
 
       // Update trial UI
-      if (account.plan.trial.activated) {
+      if (
+        account.plan.trial.activated
+        && daysTillTrialExpire > 0
+      ) {
         billingTrialExpirationDateEl
         .removeAttribute('hidden')
         .setInnerHTML('<i class="fas fa-gift mr-1"></i> Your free trial expires in ' + daysTillTrialExpire + ' days');

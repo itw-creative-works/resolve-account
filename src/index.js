@@ -271,7 +271,10 @@
       }
 
       // Update trial UI
-      if (account.plan.trial.activated) {
+      if (
+        account.plan.trial.activated
+        && daysTillTrialExpire > 0
+      ) {
         billingTrialExpirationDateEl
         .removeAttribute('hidden')
         .setInnerHTML('<i class="fas fa-gift mr-1"></i> Your free trial expires in ' + daysTillTrialExpire + ' days');

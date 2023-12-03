@@ -281,7 +281,7 @@
       }
 
       // Update billing UI
-      billingPlanId.setInnerHTML(uppercase(account.plan.id));
+      billingPlanId.setInnerHTML(splitDashesAndUppercase(account.plan.id));
       billingFrequencyEl.setInnerHTML(account.plan.id !== defaultPlanId ? ' (billed ' + uppercase(account.plan.payment.frequency) + ')' : '');
       billingStartDateEl.setInnerHTML(account.plan.id !== defaultPlanId ? ' - Purchased ' + getMonth(startDate) + ' ' + startDate.getDate() + ', ' + startDate.getFullYear() : '');
       billingExpirationDateEl.setInnerHTML(account.plan.id !== defaultPlanId && daysTillExpire < 366

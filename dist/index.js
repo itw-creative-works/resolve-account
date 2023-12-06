@@ -17,7 +17,7 @@
   var environment = (Object.prototype.toString.call(typeof process !== 'undefined' ? process : 0) === '[object process]') ? 'node' : 'browser';
 
   var SOURCE = 'library';
-  var VERSION = '1.0.8';
+  var VERSION = '1.0.10';
 
   function ResolveAccount(options) {
     var self = this
@@ -179,6 +179,18 @@
     account.api = account.api || {};
     account.api.clientId = account.api.clientId || 'unknown';
     account.api.privateKey = account.api.privateKey || 'unknown';
+
+    // Usage
+    account.usage = account.usage || {};
+
+    account.usage.requests = account.usage.requests || {};
+    account.usage.requests.total = account.usage.requests.total || 0;
+    account.usage.requests.period = account.usage.requests.period || 0;
+
+    account.usage.requests.last = account.usage.requests.last || {};
+    account.usage.requests.last.id = account.usage.requests.last.id || '';
+    account.usage.requests.last.timestamp = account.usage.requests.last.timestamp || '1970-01-01T00:00:00.000Z';
+    account.usage.requests.last.timestampUNIX = account.usage.requests.last.timestampUNIX || 0;
 
     // Personal
     account.personal = account.personal || {};

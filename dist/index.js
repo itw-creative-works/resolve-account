@@ -17,7 +17,7 @@
   var environment = (Object.prototype.toString.call(typeof process !== 'undefined' ? process : 0) === '[object process]') ? 'node' : 'browser';
 
   var SOURCE = 'library';
-  var VERSION = '1.0.11';
+  var VERSION = '1.0.12';
 
   function ResolveAccount(options) {
     var self = this
@@ -133,11 +133,8 @@
 
     // Resolve oAuth2
     account.oauth2 = account.oauth2 || {};
-    account.oauth2.updated = account.oauth2.updated || {};
-    account.oauth2.updated.timestamp = account.oauth2.updated.timestamp || timestampOld;
-    account.oauth2.updated.timestampUNIX = account.oauth2.updated.timestampUNIX || timestampUNIXOld;
+    // account.oauth2.google = account.oauth2.google || {};
     // account.oauth2.discord = account.oauth2.discord || {};
-    // account.oauth2.discord.user = account.oauth2.discord.user || {};
 
     // Resolve roles
     account.roles = account.roles || {};

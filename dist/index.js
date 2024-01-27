@@ -17,7 +17,7 @@
   var environment = (Object.prototype.toString.call(typeof process !== 'undefined' ? process : 0) === '[object process]') ? 'node' : 'browser';
 
   var SOURCE = 'library';
-  var VERSION = '1.0.12';
+  var VERSION = '1.0.13';
 
   function ResolveAccount(options) {
     var self = this
@@ -218,7 +218,7 @@
     // Set UI elements
     // In a try/catch because this lib is used in node sometimes
     try {
-      var cancelURL = isDevelopment ? 'http://localhost:4001/cancel' : 'https://itwcreativeworks.com/portal/account/manage';
+      var cancelURL = isDevelopment ? 'http://localhost:4001/cancel' : 'https://itwcreativeworks.com/portal/account/payment/manage';
 
       var billingSubscribeBtn = self.dom.select('.auth-billing-subscribe-btn');
       var billingUpdateBtn = self.dom.select('.auth-billing-update-btn');
@@ -302,8 +302,16 @@
         ? '<i class="fas fa-exclamation-triangle mr-1"></i> Expires in ' + daysTillExpire + ' days '
         : '');
 
+
+      // Update payment method UI
+      if (account.plan.status === 'suspended') {
+        self.dom.select('.master-alert-suspended').removeAttribute('hidden');
+      }
+
+      // Update API UI
       _setAuthItem('.auth-apikey-element', self.utilities.get(account, 'api.privateKey', 'n/a'));
 
+      // Update referral UI
       $referralCount.setInnerHTML(account.affiliate.referrals.length);
       $referralCode.setInnerHTML(account.affiliate.code).setValue(account.affiliate.code);
       $referralCode.setInnerHTML(referralURL.toString()).setValue(referralURL.toString());
@@ -311,6 +319,7 @@
       var affiliateLinkURI = encodeURIComponent(referralURL.toString());
       var affiliateLinkTextURI = encodeURIComponent('Sign up for ' + self.utilities.get(self.Manager, 'properties.global.brand.name', 'this') + ', a useful service:');
 
+      // Update social links
       $referralSocialLink
       .each(function ($el) {
         var provider = $el.dataset.provider;

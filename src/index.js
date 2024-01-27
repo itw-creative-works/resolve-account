@@ -302,7 +302,6 @@
         ? '<i class="fas fa-exclamation-triangle mr-1"></i> Expires in ' + daysTillExpire + ' days '
         : '');
 
-
       // Update payment method UI
       if (account.plan.status === 'suspended') {
         self.dom.select('.master-alert-suspended').removeAttribute('hidden');

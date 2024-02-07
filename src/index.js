@@ -206,6 +206,7 @@
     account.personal.location = account.personal.location || {};
     account.personal.location.city = account.personal.location.city || '';
     account.personal.location.country = account.personal.location.country || '';
+    account.personal.location.region = account.personal.location.region || '';
 
     account.personal.name = account.personal.name || {};
     account.personal.name.first = account.personal.name.first || '';

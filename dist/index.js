@@ -17,7 +17,7 @@
   var environment = (Object.prototype.toString.call(typeof process !== 'undefined' ? process : 0) === '[object process]') ? 'node' : 'browser';
 
   var SOURCE = 'library';
-  var VERSION = '1.0.14';
+  var VERSION = '1.0.15';
 
   function ResolveAccount(options) {
     var self = this
@@ -47,6 +47,13 @@
     var timestampOld = '1970-01-01T00:00:00.000Z';
     var timestampUNIXOld = 0;
 
+    // TODO: ADD THESE THINGS: USAGE RESOVLER ETC
+    console.log('++++++account', JSON.stringify(account, null, 2));
+    console.log('++++++options', JSON.stringify(options, null, 2));
+
+    // @@@DEVELOPER
+    // account.plan = {};
+
     // Resolve auth
     account.auth = account.auth || {};
     account.auth.uid = account.auth.uid || firebaseUser.uid || null;
@@ -68,6 +75,17 @@
     account.plan.trial.expires = account.plan.trial.expires || {};
     account.plan.trial.expires.timestamp = new Date(account.plan.trial.expires.timestamp || 0).toISOString()
     account.plan.trial.expires.timestampUNIX = Math.round(new Date(account.plan.trial.expires.timestamp || 0).getTime() / 1000);
+
+    // @@@DEVELOPER
+    // account.plan.id = 'basic';
+    // account.plan.trial = {
+    //   activated: false,
+    //   expires: {
+    //     timestamp: new Date('2024-04-23T00:07:29.183Z').toISOString(),
+    //     timestampUNIX: Math.round(new Date('2024-04-23T00:07:29.183Z').getTime() / 1000),
+    //   }
+    // }
+    // account.plan.status = 'suspended';
 
     account.plan.limits = account.plan.limits || {};
     // account.plan.devices = account.plan.devices || 1;
@@ -131,6 +149,8 @@
       account.plan.id = defaultPlanId;
     }
 
+    var isBasicPlan = account.plan.id === defaultPlanId;
+
     // Resolve oAuth2
     account.oauth2 = account.oauth2 || {};
     // account.oauth2.google = account.oauth2.google || {};
@@ -138,7 +158,6 @@
 
     // Resolve roles
     account.roles = account.roles || {};
-    // account.roles.betaTester = account.plan.id === defaultPlanId ? false : account.roles.betaTester === true || account.roles.betaTester === 'true';
     account.roles.betaTester = account.roles.betaTester === true || account.roles.betaTester === 'true';
     account.roles.developer = account.roles.developer === true || account.roles.developer === 'true';
     account.roles.admin = account.roles.admin === true || account.roles.admin === 'true';
@@ -204,9 +223,9 @@
     account.personal.gender = account.personal.gender || '';
 
     account.personal.location = account.personal.location || {};
-    account.personal.location.city = account.personal.location.city || '';
     account.personal.location.country = account.personal.location.country || '';
     account.personal.location.region = account.personal.location.region || '';
+    account.personal.location.city = account.personal.location.city || '';
 
     account.personal.name = account.personal.name || {};
     account.personal.name.first = account.personal.name.first || '';
@@ -225,6 +244,8 @@
       var billingUpdateBtn = self.dom.select('.auth-billing-update-btn');
       var billingPlanId = self.dom.select('.auth-billing-plan-id-element');
       var billingFrequencyEl = self.dom.select('.auth-billing-frequency-element');
+      var billingStatusEl = self.dom.select('.auth-billing-status-element');
+      var billingStatusColorEl = self.dom.select('.auth-billing-status-color-element');
       var billingStartDateEl = self.dom.select('.auth-billing-start-date-element');
       var billingExpirationDateEl = self.dom.select('.auth-billing-expiration-date-element');
       var billingSuspendedMessageEl = self.dom.select('.auth-billing-suspended-message-element');
@@ -295,11 +316,32 @@
         .setInnerHTML('<i class="fas fa-gift mr-1"></i> Your free trial expires in ' + daysTillTrialExpire + ' days');
       }
 
+      // Change the status to 'failed' if the plan is suspended because room temperature IQ people think 'suspended' means 'cancelled'
+      var visibleStatus = uppercase(account.plan.status === 'suspended' ? 'failed payment' : account.plan.status);
+      // If user is on trial, start date is trial exp date
+      var visibleStartDate = account.plan.trial.activated ? account.plan.trial.expires.timestamp : account.plan.payment.startDate.timestamp;
+      if (isBasicPlan) {
+        // Set as start of this month
+        visibleStartDate = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+      }
+      var visibleFrequency = account.plan.payment.frequency === 'unknown' ? 'monthly' : account.plan.payment.frequency;
+
       // Update billing UI
       billingPlanId.setInnerHTML(splitDashesAndUppercase(account.plan.id));
-      billingFrequencyEl.setInnerHTML(account.plan.id !== defaultPlanId ? ' (billed ' + uppercase(account.plan.payment.frequency) + ')' : '');
-      billingStartDateEl.setInnerHTML(account.plan.id !== defaultPlanId ? ' - Purchased ' + getMonth(startDate) + ' ' + startDate.getDate() + ', ' + startDate.getFullYear() : '');
-      billingExpirationDateEl.setInnerHTML(account.plan.id !== defaultPlanId && daysTillExpire < 366
+      billingFrequencyEl.setInnerHTML(visibleFrequency);
+      billingStatusEl.setInnerHTML(visibleStatus);
+      billingStatusColorEl
+        .removeClass('bg-soft-success').removeClass('bg-soft-danger').removeClass('bg-soft-warning')
+        .removeClass('text-success').removeClass('text-danger').removeClass('text-warning')
+      if (account.plan.status === 'active') {
+        billingStatusColorEl.addClass('bg-soft-success').addClass('text-success');
+      } else {
+        billingStatusColorEl.addClass('bg-soft-danger').addClass('text-danger');
+      }
+      billingStartDateEl.setInnerHTML(new Date(visibleStartDate).toLocaleString(undefined, {
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+      }));
+      billingExpirationDateEl.setInnerHTML(isBasicPlan && daysTillExpire < 366
         ? '<i class="fas fa-exclamation-triangle mr-1"></i> Expires in ' + daysTillExpire + ' days '
         : '');
 

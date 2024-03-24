@@ -33,6 +33,7 @@
     return self;
   };
 
+  // @@@GO
   ResolveAccount.prototype.resolve = function (firebaseUser, account, options) {
     var self = this;
 
@@ -261,6 +262,7 @@
 
       var updateURL = new URL(cancelURL);
       var referralURL = new URL(window.location.origin || window.location.host);
+      var accountCreationDate = new Date(+self.utilities.get(firebaseUser, 'metadata.createdAt', '0'));
 
       function _setAuthItem(selector, value) {
         self.dom.select(selector).each(function(e, i) {
@@ -276,9 +278,9 @@
       referralURL.searchParams.set('aff', account.affiliate.code)
 
       authCreatedEl.setInnerHTML(
-        new Date(+self.utilities.get(firebaseUser, 'metadata.createdAt', '0'))
+        new Date(accountCreationDate)
         .toLocaleString(undefined, {
-          weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+          year: 'numeric', month: 'long', day: 'numeric',
         })
       )
       authPhoneInput.setInnerHTML(firebaseUser.phoneNumber).setValue(firebaseUser.phoneNumber)
@@ -320,9 +322,9 @@
       var visibleStatus = uppercase(account.plan.status === 'suspended' ? 'failed payment' : account.plan.status);
       // If user is on trial, start date is trial exp date
       var visibleStartDate = account.plan.trial.activated ? account.plan.trial.expires.timestamp : account.plan.payment.startDate.timestamp;
+      // If basic, just show account creation date
       if (isBasicPlan) {
-        // Set as start of this month
-        visibleStartDate = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+        visibleStartDate = accountCreationDate;
       }
       var visibleFrequency = account.plan.payment.frequency === 'unknown' ? 'monthly' : account.plan.payment.frequency;
 
@@ -339,7 +341,7 @@
         billingStatusColorEl.addClass('bg-soft-danger').addClass('text-danger');
       }
       billingStartDateEl.setInnerHTML(new Date(visibleStartDate).toLocaleString(undefined, {
-        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+        year: 'numeric', month: 'long', day: 'numeric',
       }));
       billingExpirationDateEl.setInnerHTML(isBasicPlan && daysTillExpire < 366
         ? '<i class="fas fa-exclamation-triangle mr-1"></i> Expires in ' + daysTillExpire + ' days '

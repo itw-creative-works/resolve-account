@@ -17,7 +17,7 @@
   var environment = (Object.prototype.toString.call(typeof process !== 'undefined' ? process : 0) === '[object process]') ? 'node' : 'browser';
 
   var SOURCE = 'library';
-  var VERSION = '1.0.15';
+  var VERSION = '1.0.16';
 
   function ResolveAccount(options) {
     var self = this
@@ -48,8 +48,8 @@
     var timestampUNIXOld = 0;
 
     // TODO: ADD THESE THINGS: USAGE RESOVLER ETC
-    console.log('++++++account', JSON.stringify(account, null, 2));
-    console.log('++++++options', JSON.stringify(options, null, 2));
+    console.log('++++++account 1', JSON.stringify(account, null, 2));
+    console.log('++++++options 1', JSON.stringify(options, null, 2));
 
     // @@@DEVELOPER
     // account.plan = {};
@@ -288,8 +288,8 @@
 
       billingUpdateBtn.setAttribute('hidden', true).setAttribute('href', updateURL.toString());
       billingSubscribeBtn.setAttribute('hidden', true);
-      billingSuspendedMessageEl.setAttribute('hidden');
-      billingTrialExpirationDateEl.setAttribute('hidden');
+      billingSuspendedMessageEl.setAttribute('hidden', true);
+      billingTrialExpirationDateEl.setAttribute('hidden', true);
 
       // Update active UI
       if (planIsActive) {
@@ -386,6 +386,10 @@
         }
       })
 
+      // TODO: ADD THESE THINGS: USAGE RESOVLER ETC
+      console.log('++++++account 2', JSON.stringify(account, null, 2));
+      console.log('++++++options 2', JSON.stringify(options, null, 2));
+
     } catch (e) {
       if (typeof window !== 'undefined') {
         console.error('Unable to set DOM elements', e);
@@ -396,7 +400,6 @@
 
     return self.properties;
   }
-
 
   // Register
   if (environment === 'browser') {

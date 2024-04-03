@@ -49,8 +49,8 @@
     var timestampUNIXOld = 0;
 
     // TODO: ADD THESE THINGS: USAGE RESOVLER ETC
-    console.log('++++++account 1', JSON.stringify(account, null, 2));
-    console.log('++++++options 1', JSON.stringify(options, null, 2));
+    // console.log('++++++account 1', JSON.stringify(account, null, 2));
+    // console.log('++++++options 1', JSON.stringify(options, null, 2));
 
     // @@@DEVELOPER
     // account.plan = {};
@@ -400,8 +400,8 @@
       })
 
       // TODO: ADD THESE THINGS: USAGE RESOVLER ETC
-      console.log('++++++account 2', JSON.stringify(account, null, 2));
-      console.log('++++++options 2', JSON.stringify(options, null, 2));
+      // console.log('++++++account 2', JSON.stringify(account, null, 2));
+      // console.log('++++++options 2', JSON.stringify(options, null, 2));
 
     } catch (e) {
       if (typeof window !== 'undefined') {

@@ -34,7 +34,7 @@
   };
 
   // @@@GO
-  Account.prototype.resolve = function (firebaseUser, account, options) {
+  ResolveAccount.prototype.resolve = function (firebaseUser, account, options) {
     var self = this;
 
     firebaseUser = firebaseUser || {};

@@ -34,7 +34,7 @@
   };
 
   // @@@GO
-  ResolveAccount.prototype.resolve = function (firebaseUser, account, options) {
+  Account.prototype.resolve = function (firebaseUser, account, options) {
     var self = this;
 
     firebaseUser = firebaseUser || {};
@@ -49,8 +49,8 @@
     var timestampUNIXOld = 0;
 
     // TODO: ADD THESE THINGS: USAGE RESOVLER ETC
-    // console.log('++++++account 1', JSON.stringify(account, null, 2));
-    // console.log('++++++options 1', JSON.stringify(options, null, 2));
+    console.log('++++++account 1', JSON.stringify(account, null, 2));
+    console.log('++++++options 1', JSON.stringify(options, null, 2));
 
     // @@@DEVELOPER
     // account.plan = {};
@@ -79,8 +79,9 @@
 
     // @@@DEVELOPER
     // var date = '2024-04-23T00:07:29.183Z';
-    // var date = `2024-03-23T00:07:29.183Z`;
-    // account.plan.id = 'basic';
+    // // var date = `2024-03-23T00:07:29.183Z`;
+    // // account.plan.id = 'basic';
+    // account.plan.id = 'premium';
     // account.plan.trial = {
     //   activated: false,
     //   expires: {
@@ -93,6 +94,43 @@
     //   timestampUNIX: Math.round(new Date(date).getTime() / 1000),
     // }
     // account.plan.status = 'cancelled';
+    // account.plan = {
+    //   "id": "premium",
+    //   "payment": {
+    //     "frequency": "monthly",
+    //     "startDate": {
+    //       "timestampUNIX": 1711373195,
+    //       "timestamp": "2024-03-25T13:26:35.000Z"
+    //     },
+    //     "updatedBy": {
+    //       "date": {
+    //         "timestamp": "2024-04-02T13:46:47.441Z",
+    //         "timestampUNIX": 1712065607
+    //       },
+    //       "event": {
+    //         "name": "subscription-profile-fixer",
+    //         "id": "subscription-profile-fixer"
+    //       }
+    //     },
+    //     "resourceId": "AzyrfuU82V0cZ87qp",
+    //     "orderId": "0908-176942-1223",
+    //     "active": false,
+    //     "processor": "chargebee"
+    //   },
+    //   "trial": {
+    //     "expires": {
+    //       "timestamp": "1970-01-01T00:00:00.000Z",
+    //       "timestampUNIX": 0
+    //     },
+    //     "activated": true
+    //   },
+    //   "expires": {
+    //     "timestampUNIX": 1714656799,
+    //     "timestamp": "2024-05-02T13:33:19.000Z"
+    //   },
+    //   "limits": {},
+    //   "status": "cancelled"
+    // },
 
     account.plan.limits = account.plan.limits || {};
     // account.plan.devices = account.plan.devices || 1;
@@ -328,11 +366,21 @@
       // Change the status to 'failed' if the plan is suspended because room temperature IQ people think 'suspended' means 'cancelled'
       var visibleStatus = uppercase(account.plan.status === 'suspended' ? 'failed payment' : account.plan.status);
       // If user is on trial, start date is trial exp date
-      var visibleStartDate = account.plan.trial.activated ? account.plan.trial.expires.timestamp : account.plan.payment.startDate.timestamp;
+      var visibleStartDate = null;
       // If basic, just show account creation date
       if (unresolvedPlanId === defaultPlanId) {
         visibleStartDate = accountCreationDate;
         billingStatusEl.setAttribute('hidden', true);
+      } else {
+        if (account.plan.status === 'cancelled') {
+          visibleStartDate = account.plan.payment.startDate.timestamp;
+        } else {
+          if (account.plan.trial.activated) {
+            visibleStartDate = account.plan.trial.expires.timestamp;
+          }
+        }
+
+        visibleStartDate = visibleStartDate || accountCreationDate;
       }
       var visibleFrequency = account.plan.payment.frequency === 'unknown' ? 'monthly' : account.plan.payment.frequency;
 
@@ -400,8 +448,8 @@
       })
 
       // TODO: ADD THESE THINGS: USAGE RESOVLER ETC
-      // console.log('++++++account 2', JSON.stringify(account, null, 2));
-      // console.log('++++++options 2', JSON.stringify(options, null, 2));
+      console.log('++++++account 2', JSON.stringify(account, null, 2));
+      console.log('++++++options 2', JSON.stringify(options, null, 2));
 
     } catch (e) {
       if (typeof window !== 'undefined') {

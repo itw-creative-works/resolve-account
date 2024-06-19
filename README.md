@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://cdn.itwcreativeworks.com/assets/itw-creative-works/images/logo/itw-creative-works-brandmark-black-x.svg">
+  <a href="https://itwcreativeworks.com">
     <img src="https://cdn.itwcreativeworks.com/assets/itw-creative-works/images/logo/itw-creative-works-brandmark-black-x.svg" width="100px">
   </a>
 </p>
@@ -24,15 +24,15 @@
   <strong>resolve-account</strong> is the official ITW Creative Works npm module to standardize and resolve the JSON structure for Firebase Firestore accounts.
 </p>
 
-## Resolve Account Works in Node AND browser environments
+## 🌐 Resolve Account Works in Node AND browser environments
 Yes, this module works in both Node and browser environments, including compatibility with [Webpack](https://www.npmjs.com/package/webpack) and [Browserify](https://www.npmjs.com/package/browserify)!
 
-## Features
+## 🦄 Features
 * Standardize JSON structure
 * Resolve plan IDs for expired plans
 
-## Install Resolve Account
-### Install via npm
+## 📦 Install Resolve Account
+### Option 1: Install via npm
 Install with npm if you plan to use `resolve-account` in a Node project or in the browser.
 ```shell
 npm install resolve-account
@@ -46,7 +46,7 @@ const resolved = ResolveAccount.resolve({
 })
 ```
 
-### Install via CDN
+### Option 2: Install via CDN
 Install with CDN if you plan to use Resolve Account only in a browser environment.
 ```html
 <script src="https://cdn.jsdelivr.net/npm/resolve-account@latest/dist/index.min.js"></script>
@@ -57,22 +57,22 @@ Install with CDN if you plan to use Resolve Account only in a browser environmen
 </script>
 ```
 
-### Use without installation
+### Option 3: Use without installation
 You can use `resolve-account` in a variety of ways that require no installation, such as `curl` in terminal/shell. See the **Use without installation** section below.
 
-## Using Resolve Account
+## ⚡️ Using Resolve Account
 After you have followed the install step, you can start using `resolve-account` to resolve Firebase Firestore JSON accounts
 
 For a more in-depth documentation of this library and the Resolve Account service, please visit the official Resolve Account website.
 
-## What Can Resolve Account do?
+## 📝 What Can Resolve Account do?
 is the official ITW Creative Works npm module to standardize and resolve the JSON structure for Firebase Firestore accounts.
 
-## Final Words
+## 🗨️ Final Words
 If you are still having difficulty, we would love for you to post
 a question to [the Resolve Account issues page](https://github.com/resolve-account/resolve-account/issues). It is much easier to answer questions that include your code and relevant files! So if you can provide them, we'd be extremely grateful (and more likely to help you find the answer!)
 
-## Projects Using this Library
+## 📚 Projects Using this Library
 * coming soon!
 
 Ask us to have your project listed! :)

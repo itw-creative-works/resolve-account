@@ -17,7 +17,7 @@
   var environment = (Object.prototype.toString.call(typeof process !== 'undefined' ? process : 0) === '[object process]') ? 'node' : 'browser';
 
   var SOURCE = 'library';
-  var VERSION = '1.0.23';
+  var VERSION = '1.0.25';
 
   function ResolveAccount(options) {
     var self = this

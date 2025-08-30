@@ -1,12 +1,12 @@
 {
   "name": "resolve-account",
-  "version": "1.0.26",
+  "version": "2.0.0",
   "description": "Standardize account JSON structure for projects built under ITW Creative Works",
   "main": "./dist/index.js",
   "scripts": {
     "test": "npm run prepare && ./node_modules/mocha/bin/mocha test/ --recursive --timeout=10000",
     "prepare": "node -e \"require('prepare-package')()\"",
-    "prepare:watch": "nodemon -w ./src -e '*' --exec 'npm run prepare'"
+    "prepare:watch": "node -e \"require('prepare-package/watch')()\""
   },
   "engines": {
     "node": ">=12"
@@ -34,10 +34,10 @@
     "replace": {}
   },
   "dependencies": {
-    "itwcw-package-analytics": "^1.0.4"
+    "itwcw-package-analytics": "^1.0.6"
   },
   "devDependencies": {
     "mocha": "^8.4.0",
-    "prepare-package": "^1.1.12"
+    "prepare-package": "^1.2.2"
   }
 }

@@ -15,6 +15,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - `Security` in case of vulnerabilities.
 
 ---
+## [2.0.0] - 2024-06-19
+### Added
+- New ITW 3.0 Format (mainly removed DOM manipulation and changed `plan` to `subscription`)
+
 ## [1.0.0] - 2024-06-19
 ### Added
 - Initial release of the project 🚀

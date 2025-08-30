@@ -1,483 +1,255 @@
-(function (root, factory) {
-  // https://github.com/umdjs/umd/blob/master/templates/returnExports.js
-  if (typeof define === 'function' && define.amd) {
-    // AMD. Register as an anonymous module.
-    define([], factory);
-  } else if (typeof module === 'object' && module.exports) {
-    // Node. Does not work with strict CommonJS, but
-    // only CommonJS-like environments that support module.exports,
-    // like Node.
-    module.exports = factory();
-  } else {
-    // Browser globals (root is window)
-    root.returnExports = factory();
+/**
+ * Resolve Account - Standardize account data structure
+ * Ensures all required fields exist with proper defaults
+ */
+
+function resolveAccount(rawData, firebaseUser) {
+  const user = firebaseUser || {};
+
+  // Helper to create timestamp objects
+  function createTimestamp(value = null) {
+    if (value === null) {
+      return { timestamp: null, timestampUNIX: null };
+    }
+    const date = new Date(value);
+    return {
+      timestamp: date.toISOString(),
+      timestampUNIX: Math.round(date.getTime() / 1000)
+    };
   }
-}(typeof self !== 'undefined' ? self : this, function () {
 
-  var environment = (Object.prototype.toString.call(typeof process !== 'undefined' ? process : 0) === '[object process]') ? 'node' : 'browser';
+  // Define the default schema
+  const defaultSchema = {
+    auth: {
+      uid: user.uid || null,
+      email: user.email || null,
+      temporary: false
+    },
+    subscription: {
+      // IDs
+      id: null,
+      orderNumber: null,
+      app: null,
+      product: null,
+      intent: null,
 
-  var SOURCE = 'library';
-  var VERSION = '1.0.26';
+      // Type and status
+      type: 'subscription',
+      status: 'inactive',
+      access: false,
+      frequency: 'monthly',
 
-  function ResolveAccount(options) {
-    var self = this
+      // Customer info
+      customer: {
+        id: null,
+        email: null,
+        name: null,
+        address: null,
+        phone: null
+      },
 
-    options = options || {};
+      // Payment processor info
+      processor: {
+        id: null,
+        priceId: null,
+        productId: null,
+        subscriptionItemId: null
+      },
 
-    self.Manager = options.Manager;
-    self.utilities = options.utilities;
-    self.dom = options.dom;
+      // Billing info
+      billing: {
+        amount: 0,
+        currency: 'usd',
+        interval: 1,
+        currentPeriodEnd: createTimestamp(),
+        nextBillingDate: createTimestamp(),
+        lastPayment: {
+          amount: null,
+          date: createTimestamp(),
+          status: null
+        }
+      },
 
-    self.properties = {};
+      // Trial info
+      trial: {
+        eligible: false,
+        used: false,
+        days: 0,
+        startedAt: createTimestamp(),
+        endedAt: createTimestamp()
+      },
 
-    return self;
+      // Cancellation info
+      cancellation: {
+        requested: false,
+        requestedAt: createTimestamp(),
+        effectiveAt: createTimestamp(),
+        reason: null
+      },
+
+      // Metadata
+      meta: {
+        created: createTimestamp(),
+        updated: createTimestamp()
+      }
+    },
+    oauth2: {},
+    roles: {
+      betaTester: false,
+      developer: false,
+      admin: false,
+      vip: false,
+      og: false,
+      promoExempt: false
+    },
+    affiliate: {
+      code: 'unknown',
+      referrals: [],
+      referrer: 'unknown'
+    },
+    activity: {
+      lastActivity: createTimestamp(),
+      created: createTimestamp(),
+      geolocation: {
+        ip: 'unknown',
+        continent: 'unknown',
+        country: 'unknown',
+        region: 'unknown',
+        city: 'unknown',
+        latitude: 0,
+        longitude: 0
+      },
+      client: {
+        userAgent: 'unknown',
+        language: 'unknown',
+        platform: 'unknown',
+        mobile: null
+      }
+    },
+    api: {
+      clientId: 'unknown',
+      privateKey: 'unknown'
+    },
+    usage: {
+      requests: {
+        total: 0,
+        period: 0,
+        last: {
+          id: '',
+          ...createTimestamp()
+        }
+      }
+    },
+    personal: {
+      birthday: createTimestamp(),
+      gender: '',
+      location: {
+        country: '',
+        region: '',
+        city: ''
+      },
+      name: {
+        first: '',
+        last: ''
+      },
+      telephone: {
+        countryCode: 0,
+        national: 0
+      },
+      company: {
+        name: '',
+        position: ''
+      }
+    }
   };
 
-  // @@@GO
-  ResolveAccount.prototype.resolve = function (firebaseUser, account, options) {
-    var self = this;
+  // Deep merge function that preserves existing values
+  function deepMerge(target, source) {
+    const result = { ...target };
 
-    firebaseUser = firebaseUser || {};
-    account = account || {};
-    options = options || {};
-
-    var defaultPlanId = options.defaultPlanId || 'basic';
-
-    var currentURL;
-    var isDevelopment;
-    var timestampOld = '1970-01-01T00:00:00.000Z';
-    var timestampUNIXOld = 0;
-
-    // TODO: ADD THESE THINGS: USAGE RESOVLER ETC
-    // console.log('++++++account 1', JSON.stringify(account, null, 2));
-    // console.log('++++++options 1', JSON.stringify(options, null, 2));
-
-    // @@@DEVELOPER
-    // account.plan = {};
-
-    // Resolve auth
-    account.auth = account.auth || {};
-    account.auth.uid = account.auth.uid || firebaseUser.uid || null;
-    account.auth.email = account.auth.email || firebaseUser.email || null;
-    account.auth.temporary = account.auth.temporary || false;
-
-    // Resolve plan
-    account.plan = account.plan || {};
-    account.plan.id = account.plan.id || defaultPlanId;
-
-    account.plan.status = account.plan.status || 'cancelled';
-
-    account.plan.expires = account.plan.expires || {};
-    account.plan.expires.timestamp = new Date(account.plan.expires.timestamp || 0).toISOString();
-    account.plan.expires.timestampUNIX = Math.round(new Date(account.plan.expires.timestamp || 0).getTime() / 1000);
-
-    account.plan.trial = account.plan.trial || {};
-    account.plan.trial.activated = account.plan.trial.activated || false;
-    account.plan.trial.expires = account.plan.trial.expires || {};
-    account.plan.trial.expires.timestamp = new Date(account.plan.trial.expires.timestamp || 0).toISOString()
-    account.plan.trial.expires.timestampUNIX = Math.round(new Date(account.plan.trial.expires.timestamp || 0).getTime() / 1000);
-
-    // @@@DEVELOPER
-    // var date = '2024-04-23T00:07:29.183Z';
-    // // var date = `2024-03-23T00:07:29.183Z`;
-    // // account.plan.id = 'basic';
-    // account.plan.id = 'premium';
-    // account.plan.trial = {
-    //   activated: false,
-    //   expires: {
-    //     timestamp: new Date(date).toISOString(),
-    //     timestampUNIX: Math.round(new Date(date).getTime() / 1000),
-    //   },
-    // }
-    // account.plan.expires = {
-    //   timestamp: new Date(date).toISOString(),
-    //   timestampUNIX: Math.round(new Date(date).getTime() / 1000),
-    // }
-    // account.plan.status = 'cancelled';
-    // account.plan = {
-    //   "id": "premium",
-    //   "payment": {
-    //     "frequency": "monthly",
-    //     "startDate": {
-    //       "timestampUNIX": 1711373195,
-    //       "timestamp": "2024-03-25T13:26:35.000Z"
-    //     },
-    //     "updatedBy": {
-    //       "date": {
-    //         "timestamp": "2024-04-02T13:46:47.441Z",
-    //         "timestampUNIX": 1712065607
-    //       },
-    //       "event": {
-    //         "name": "subscription-profile-fixer",
-    //         "id": "subscription-profile-fixer"
-    //       }
-    //     },
-    //     "resourceId": "AzyrfuU82V0cZ87qp",
-    //     "orderId": "0908-176942-1223",
-    //     "active": false,
-    //     "processor": "chargebee"
-    //   },
-    //   "trial": {
-    //     "expires": {
-    //       "timestamp": "1970-01-01T00:00:00.000Z",
-    //       "timestampUNIX": 0
-    //     },
-    //     "activated": true
-    //   },
-    //   "expires": {
-    //     "timestampUNIX": 1714656799,
-    //     "timestamp": "2024-05-02T13:33:19.000Z"
-    //   },
-    //   "limits": {},
-    //   "status": "cancelled"
-    // },
-
-    account.plan.limits = account.plan.limits || {};
-    // account.plan.devices = account.plan.devices || 1;
-
-    account.plan.payment = account.plan.payment || {};
-    account.plan.payment.processor = account.plan.payment.processor || 'unknown';
-    account.plan.payment.orderId = account.plan.payment.orderId || 'unknown';
-    account.plan.payment.resourceId = account.plan.payment.resourceId || 'unknown';
-    account.plan.payment.frequency = account.plan.payment.frequency || 'unknown';
-    account.plan.payment.active = account.plan.payment.active || false;
-
-    account.plan.payment.startDate = account.plan.payment.startDate || {};
-    account.plan.payment.startDate.timestamp = account.plan.payment.startDate.timestamp || timestampOld;
-    account.plan.payment.startDate.timestampUNIX = account.plan.payment.startDate.timestampUNIX || timestampUNIXOld;
-
-    account.plan.payment.updatedBy = account.plan.payment.updatedBy || {};
-    account.plan.payment.updatedBy.event = account.plan.payment.updatedBy.event || {};
-    account.plan.payment.updatedBy.event.id = account.plan.payment.updatedBy.event.id || 'unknown';
-    account.plan.payment.updatedBy.event.name = account.plan.payment.updatedBy.event.name || 'unknown';
-    account.plan.payment.updatedBy.date = account.plan.payment.updatedBy.date || {};
-    account.plan.payment.updatedBy.date.timestamp = account.plan.payment.updatedBy.date.timestamp || timestampOld;
-    account.plan.payment.updatedBy.date.timestampUNIX = account.plan.payment.updatedBy.date.timestampUNIX || timestampUNIXOld;
-
-    // Set some variables
-    // In a try/catch because this lib is used in node sometimes
-    try {
-      currentURL = new URL(window.location.href);
-      isDevelopment = self.utilities.get(self.Manager, 'properties.meta.environment', '') === 'development';
-
-      if (isDevelopment) {
-        currentURL.searchParams
-        .forEach(function(value, key) {
-          var accountValue = self.utilities.get(account, key, undefined)
-          if (typeof accountValue !== 'undefined') {
-            if (value === 'true') { value = true }
-            if (value === 'false') { value = false }
-
-            self.utilities.set(account, key, value)
-          }
-        });
-      }
-    } catch (e) {
-      if (typeof window !== 'undefined') {
-        console.error('Unable to check query strings', e);
+    for (const key in source) {
+      if (source.hasOwnProperty(key)) {
+        if (result[key] === null || result[key] === undefined) {
+          result[key] = source[key];
+        } else if (typeof result[key] === 'object' && !Array.isArray(result[key]) &&
+                   typeof source[key] === 'object' && !Array.isArray(source[key])) {
+          result[key] = deepMerge(result[key], source[key]);
+        }
       }
     }
 
-    var now = new Date();
-    var planExpireDate = new Date(account.plan.expires.timestamp);
-    var daysTillExpire = Math.floor((planExpireDate - now) / 86400000);
-    var difference = (planExpireDate.getTime() - now.getTime()) / (24 * 3600 * 1000);
-    var trialExpireDate = new Date(account.plan.trial.expires.timestamp);
-    var daysTillTrialExpire = Math.floor((trialExpireDate - now) / 86400000);
-    var startDate = new Date(account.plan.payment.startDate.timestamp);
-    var unresolvedPlanId = account.plan.id;
-    var planIsActive = difference > -1 && account.plan.id !== defaultPlanId;
-    var planIsSuspended = account.plan.status === 'suspended';
+    return result;
+  }
 
-    if (planIsActive) {
-      account.plan.id = account.plan.id;
-    } else {
-      account.plan.id = defaultPlanId;
-    }
+  // Start with raw data, then apply defaults
+  const account = deepMerge(rawData || {}, defaultSchema);
 
-    var isBasicPlan = account.plan.id === defaultPlanId;
+  // Handle special processing for certain fields
 
-    // Resolve oAuth2
-    account.oauth2 = account.oauth2 || {};
-    // account.oauth2.google = account.oauth2.google || {};
-    // account.oauth2.discord = account.oauth2.discord || {};
+  // Normalize boolean roles (handle string 'true' values)
+  if (account.roles) {
+    Object.keys(account.roles).forEach(role => {
+      account.roles[role] = account.roles[role] === true || account.roles[role] === 'true';
+    });
+  }
 
-    // Resolve roles
-    account.roles = account.roles || {};
-    account.roles.betaTester = account.roles.betaTester === true || account.roles.betaTester === 'true';
-    account.roles.developer = account.roles.developer === true || account.roles.developer === 'true';
-    account.roles.admin = account.roles.admin === true || account.roles.admin === 'true';
-    account.roles.vip = account.roles.vip === true || account.roles.vip === 'true';
-    account.roles.og = account.roles.og === true || account.roles.og === 'true';
-    account.roles.promoExempt = account.roles.promoExempt === true || account.roles.promoExempt === 'true';
-
-    // Resolve affiliate
-    account.affiliate = account.affiliate || {};
-    account.affiliate.code = account.affiliate.code || 'unknown';
-    account.affiliate.referrals = account.affiliate.referrals || [];
-    account.affiliate.referrer = account.affiliate.referrer || 'unknown';
-
-    // Resolve activity
-    account.activity = account.activity || {};
-    account.activity.lastActivity = account.activity.lastActivity || {};
-    account.activity.lastActivity.timestamp = account.activity.lastActivity.timestamp || timestampOld;
-    account.activity.lastActivity.timestampUNIX = account.activity.lastActivity.timestampUNIX || timestampUNIXOld;
-
-    account.activity.created = account.activity.created || {};
-    account.activity.created.timestamp = account.activity.created.timestamp || timestampOld;
-    account.activity.created.timestampUNIX = account.activity.created.timestampUNIX || timestampUNIXOld;
-
-    account.activity.geolocation = account.activity.geolocation || {};
-    account.activity.geolocation.ip = account.activity.geolocation.ip || 'unknown';
-    account.activity.geolocation.continent = account.activity.geolocation.continent || 'unknown';
-    account.activity.geolocation.country = account.activity.geolocation.country || 'unknown';
-    account.activity.geolocation.region = account.activity.geolocation.region || 'unknown';
-    account.activity.geolocation.city = account.activity.geolocation.city || 'unknown';
-    account.activity.geolocation.latitude = account.activity.geolocation.latitude || 0;
-    account.activity.geolocation.longitude = account.activity.geolocation.longitude || 0;
-
-    account.activity.client = account.activity.client || {};
-    account.activity.client.userAgent = account.activity.client.userAgent || 'unknown';
-    account.activity.client.language = account.activity.client.language || 'unknown';
-    account.activity.client.platform = account.activity.client.platform || 'unknown';
-    account.activity.client.mobile = account.activity.client.mobile || null;
-
-    // Api
-    account.api = account.api || {};
-    account.api.clientId = account.api.clientId || 'unknown';
-    account.api.privateKey = account.api.privateKey || 'unknown';
-
-    // Usage
-    account.usage = account.usage || {};
-
-    account.usage.requests = account.usage.requests || {};
-    account.usage.requests.total = account.usage.requests.total || 0;
-    account.usage.requests.period = account.usage.requests.period || 0;
-
-    account.usage.requests.last = account.usage.requests.last || {};
-    account.usage.requests.last.id = account.usage.requests.last.id || '';
-    account.usage.requests.last.timestamp = account.usage.requests.last.timestamp || timestampOld;
-    account.usage.requests.last.timestampUNIX = account.usage.requests.last.timestampUNIX || timestampUNIXOld;
-
-    // Personal
-    account.personal = account.personal || {};
-
-    account.personal.birthday = account.personal.birthday || {};
-    account.personal.birthday.timestamp = account.personal.birthday.timestamp || timestampOld;
-    account.personal.birthday.timestampUNIX = account.personal.birthday.timestampUNIX || timestampUNIXOld;
-
-    account.personal.gender = account.personal.gender || '';
-
-    account.personal.location = account.personal.location || {};
-    account.personal.location.country = account.personal.location.country || '';
-    account.personal.location.region = account.personal.location.region || '';
-    account.personal.location.city = account.personal.location.city || '';
-
-    account.personal.name = account.personal.name || {};
-    account.personal.name.first = account.personal.name.first || '';
-    account.personal.name.last = account.personal.name.last || '';
-
-    account.personal.telephone = account.personal.telephone || {};
-    account.personal.telephone.countryCode = account.personal.telephone.countryCode || 0;
-    account.personal.telephone.national = account.personal.telephone.national || 0;
-
-    account.personal.company = account.personal.company || {};
-    account.personal.company.name = account.personal.company.name || '';
-    account.personal.company.position = account.personal.company.position || '';
-
-    // Set UI elements
-    // In a try/catch because this lib is used in node sometimes
-    try {
-      var cancelURL = isDevelopment ? 'http://localhost:4001/cancel' : 'https://itwcreativeworks.com/portal/account/payment/manage';
-
-      var billingSubscribeBtn = self.dom.select('.auth-billing-subscribe-btn');
-      var billingUpdateBtn = self.dom.select('.auth-billing-update-btn');
-      var billingPlanId = self.dom.select('.auth-billing-plan-id-element');
-      var billingFrequencyEl = self.dom.select('.auth-billing-frequency-element');
-      var billingStatusEl = self.dom.select('.auth-billing-status-element');
-      var billingStatusColorEl = self.dom.select('.auth-billing-status-color-element');
-      var billingStartDateEl = self.dom.select('.auth-billing-start-date-element');
-      var billingExpirationDateEl = self.dom.select('.auth-billing-expiration-date-element');
-      var billingSuspendedMessageEl = self.dom.select('.auth-billing-suspended-message-element');
-      var billingTrialExpirationDateEl = self.dom.select('.auth-billing-trial-expiration-date-element');
-
-      var $referralCount = self.dom.select('.auth-referral-count-element');
-      var $referralCode = self.dom.select('.auth-referral-code-element');
-      var $referralLink = self.dom.select('.auth-referral-link-element');
-      var $referralSocialLink = self.dom.select('a.auth-referral-social-link[data-provider]');
-
-      var authCreatedEl = self.dom.select('.auth-created-element');
-      var authPhoneInput = self.dom.select('.auth-phone-input');
-
-      var updateURL = new URL(cancelURL);
-      var referralURL = new URL(window.location.origin || window.location.host);
-      var accountCreationDate = new Date(+self.utilities.get(firebaseUser, 'metadata.createdAt', '0'));
-
-      function _setAuthItem(selector, value) {
-        self.dom.select(selector).each(function(e, i) {
-          if (e.tagName === 'INPUT') {
-            self.dom.select(e).setValue(value);
-          } else {
-            self.dom.select(e).setInnerHTML(value);
-          }
-        });
-      }
-
-      referralURL.pathname = '/';
-      referralURL.searchParams.set('aff', account.affiliate.code)
-
-      authCreatedEl.setInnerHTML(
-        new Date(accountCreationDate)
-        .toLocaleString(undefined, {
-          year: 'numeric', month: 'long', day: 'numeric',
-        })
-      )
-      authPhoneInput.setInnerHTML(firebaseUser.phoneNumber).setValue(firebaseUser.phoneNumber)
-
-      updateURL.searchParams.set('orderId', account.plan.payment.orderId);
-      updateURL.searchParams.set('resourceId', account.plan.payment.resourceId);
-
-      billingUpdateBtn.setAttribute('hidden', true).setAttribute('href', updateURL.toString());
-      billingSubscribeBtn.setAttribute('hidden', true);
-      billingSuspendedMessageEl.setAttribute('hidden', true);
-      billingTrialExpirationDateEl.setAttribute('hidden', true);
-
-      // Update active UI
-      if (planIsActive) {
-        billingUpdateBtn.removeAttribute('hidden');
-      } else {
-        billingSubscribeBtn.removeAttribute('hidden');
-      }
-
-      // Update suspended UI
-      if (planIsSuspended) {
-        billingUpdateBtn.removeAttribute('hidden');
-        billingSubscribeBtn.setAttribute('hidden', true);
-
-        billingSuspendedMessageEl.removeAttribute('hidden');
-      }
-
-      // Update trial UI
-      if (
-        account.plan.trial.activated
-        && daysTillTrialExpire > 0
-      ) {
-        billingTrialExpirationDateEl
-        .removeAttribute('hidden')
-        .setInnerHTML('<i class="fas fa-gift mr-1"></i> Your free trial expires in ' + daysTillTrialExpire + ' days');
-      }
-
-      // Change the status to 'failed' if the plan is suspended because room temperature IQ people think 'suspended' means 'cancelled'
-      var visibleStatus = uppercase(account.plan.status === 'suspended' ? 'failed payment' : account.plan.status);
-      // If user is on trial, start date is trial exp date
-      var visibleStartDate = null;
-      // If basic, just show account creation date
-      if (unresolvedPlanId === defaultPlanId) {
-        visibleStartDate = accountCreationDate;
-        billingStatusEl.setAttribute('hidden', true);
-      } else {
-        if (account.plan.status === 'cancelled') {
-          visibleStartDate = account.plan.payment.startDate.timestamp;
+  // Fix timestamp fields to ensure they have both timestamp and timestampUNIX
+  function normalizeTimestamps(obj) {
+    if (obj && typeof obj === 'object') {
+      // Check if this object looks like a timestamp object
+      if ('timestamp' in obj || 'timestampUNIX' in obj) {
+        // Ensure both fields exist
+        if (obj.timestamp === undefined || obj.timestamp === null) {
+          obj.timestamp = null;
+          obj.timestampUNIX = null;
         } else {
-          if (account.plan.trial.activated) {
-            visibleStartDate = account.plan.trial.expires.timestamp;
+          // If we have a timestamp, ensure we also have timestampUNIX
+          const date = new Date(obj.timestamp);
+          if (!isNaN(date.getTime())) {
+            obj.timestamp = date.toISOString();
+            obj.timestampUNIX = Math.round(date.getTime() / 1000);
+          } else {
+            obj.timestamp = null;
+            obj.timestampUNIX = null;
           }
         }
-
-        visibleStartDate = visibleStartDate || accountCreationDate;
       }
-      var visibleFrequency = account.plan.payment.frequency === 'unknown' ? 'monthly' : account.plan.payment.frequency;
-
-      // Update billing UI
-      // billingPlanId.setInnerHTML(splitDashesAndUppercase(account.plan.id));
-      billingPlanId.setInnerHTML(splitDashesAndUppercase(unresolvedPlanId)); // Show unresolved because we want to show what plan they have bought not what the expirattion status resolves to
-      billingFrequencyEl.setInnerHTML(visibleFrequency);
-      billingStatusEl.setInnerHTML(visibleStatus);
-      billingStatusColorEl
-        .removeClass('bg-soft-success').removeClass('bg-soft-danger').removeClass('bg-soft-warning')
-        .removeClass('text-success').removeClass('text-danger').removeClass('text-warning')
-      if (account.plan.status === 'active') {
-        billingStatusColorEl.addClass('bg-soft-success').addClass('text-success');
-      } else {
-        billingStatusColorEl.addClass('bg-soft-danger').addClass('text-danger');
-      }
-      billingStartDateEl.setInnerHTML(new Date(visibleStartDate).toLocaleString(undefined, {
-        year: 'numeric', month: 'long', day: 'numeric',
-      }));
-      // billingExpirationDateEl.setInnerHTML(isBasicPlan && daysTillExpire < 366
-      billingExpirationDateEl.setInnerHTML('<i class="fas fa-exclamation-triangle mr-1"></i> Expires in ' + daysTillExpire + ' days ');
-      if (daysTillExpire > 0 && daysTillExpire < 366) {
-        billingExpirationDateEl.removeAttribute('hidden');
-      }
-
-      // Update payment method UI
-      if (account.plan.status === 'suspended') {
-        self.dom.select('.master-alert-suspended').removeAttribute('hidden');
-      }
-
-      // Update API UI
-      _setAuthItem('.auth-apikey-element', self.utilities.get(account, 'api.privateKey', 'n/a'));
-
-      // Update referral UI
-      $referralCount.setInnerHTML(account.affiliate.referrals.length);
-      $referralCode.setInnerHTML(account.affiliate.code).setValue(account.affiliate.code);
-      $referralCode.setInnerHTML(referralURL.toString()).setValue(referralURL.toString());
-
-      var affiliateLinkURI = encodeURIComponent(referralURL.toString());
-      var affiliateLinkTextURI = encodeURIComponent('Sign up for ' + self.utilities.get(self.Manager, 'properties.global.brand.name', 'this') + ', a useful service:');
-
-      // Update social links
-      $referralSocialLink
-      .each(function ($el) {
-        var provider = $el.dataset.provider;
-        var text = encodeURIComponent($el.dataset.shareText || '');
-
-        $el.setAttribute('target', '_blank')
-
-        if (provider === 'facebook') {
-          $el.setAttribute('href', 'https://www.facebook.com/sharer.php?u=' + (affiliateLinkURI) + '')
-        } else if (provider === 'twitter') {
-          $el.setAttribute('href', 'https://twitter.com/share?url=' + (affiliateLinkURI) + '&text=' + (text || affiliateLinkTextURI) + '')
-        } else if (provider === 'pinterest') {
-          $el.setAttribute('href', 'https://pinterest.com/pin/create/button/?url=' + (affiliateLinkURI) + '&description=' + (text || affiliateLinkTextURI) + '')
-        } else if (provider === 'tumblr') {
-          $el.setAttribute('href', 'https://www.tumblr.com/share/link?url=' + (affiliateLinkURI) + '&text=' + (text || affiliateLinkTextURI) + '')
-        } else if (provider === 'linkedin') {
-          $el.setAttribute('href', 'https://www.linkedin.com/sharing/share-offsite/?url=' + (affiliateLinkURI) + '&title=' + (text || affiliateLinkTextURI) + '')
-          // $el.setAttribute('href', `http://www.linkedin.com/shareArticle?mini=true&url=https://stackoverflow.com/questions/10713542/how-to-make-custom-linkedin-share-button/10737122&title=How%20to%20make%20custom%20linkedin%20share%20button&summary=some%20summary%20if%20you%20want&source=stackoverflow.com`)
-          // $el.setAttribute('href', `http://www.linkedin.com/shareArticle?mini=false&url=' + affiliateLinkURI + '&title=' + text || affiliateLinkTextURI + '`)
-        } else if (provider === 'reddit') {
-          $el.setAttribute('href', 'http://www.reddit.com/submit?url=' + (affiliateLinkURI) + '&title=' + (text || affiliateLinkTextURI) + '')
+      
+      // Recursively process nested objects
+      Object.keys(obj).forEach(key => {
+        if (typeof obj[key] === 'object' && !Array.isArray(obj[key])) {
+          normalizeTimestamps(obj[key]);
         }
-      })
-
-      // TODO: ADD THESE THINGS: USAGE RESOVLER ETC
-      // console.log('++++++account 2', JSON.stringify(account, null, 2));
-      // console.log('++++++options 2', JSON.stringify(options, null, 2));
-
-    } catch (e) {
-      if (typeof window !== 'undefined') {
-        console.error('Unable to set DOM elements', e);
+      });
+    }
+  }
+  
+  normalizeTimestamps(account);
+  
+  // Handle subscription access logic
+  if (account.subscription) {
+    const now = Date.now() / 1000; // Current time in seconds
+    
+    // Check if subscription is active
+    if (account.subscription.status === 'active' || account.subscription.status === 'trialing') {
+      // Check if current period hasn't ended
+      if (account.subscription.billing?.currentPeriodEnd?.timestampUNIX) {
+        account.subscription.access = account.subscription.billing.currentPeriodEnd.timestampUNIX > now;
       }
-    }
-
-    self.properties = account;
-
-    return self.properties;
-  }
-
-
-  // Register
-  if (environment === 'browser') {
-    try {
-      window.ResolveAccount = ResolveAccount;
-    } catch (e) {
+    } else {
+      account.subscription.access = false;
     }
   }
 
-  // Just return a value to define the module export.
-  // This example returns an object, but the module
-  // can return a function as the exported value.
-  return ResolveAccount; // Enable if using UMD
+  // Return the resolved account object
+  return account;
+}
 
-}));
+// Export for different module systems
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = resolveAccount;
+} else if (typeof define === 'function' && define.amd) {
+  define([], function() { return resolveAccount; });
+} else if (typeof window !== 'undefined') {
+  window.resolveAccount = resolveAccount;
+}

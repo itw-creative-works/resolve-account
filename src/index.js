@@ -30,12 +30,12 @@ function resolveAccount(rawData, firebaseUser) {
       id: null,
       orderNumber: null,
       app: null,
-      product: null,
+      product: 'basic',
       intent: null,
 
       // Type and status
       type: 'subscription',
-      status: 'inactive',
+      status: 'active',
       access: false,
       frequency: 'monthly',
 
@@ -214,7 +214,7 @@ function resolveAccount(rawData, firebaseUser) {
           }
         }
       }
-      
+
       // Recursively process nested objects
       Object.keys(obj).forEach(key => {
         if (typeof obj[key] === 'object' && !Array.isArray(obj[key])) {
@@ -223,13 +223,13 @@ function resolveAccount(rawData, firebaseUser) {
       });
     }
   }
-  
+
   normalizeTimestamps(account);
-  
+
   // Handle subscription access logic
   if (account.subscription) {
     const now = Date.now() / 1000; // Current time in seconds
-    
+
     // Check if subscription is active
     if (account.subscription.status === 'active' || account.subscription.status === 'trialing') {
       // Check if current period hasn't ended
